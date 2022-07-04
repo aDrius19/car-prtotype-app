@@ -1,6 +1,6 @@
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import React, {useEffect, useState} from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native';
+import {Button, StyleSheet, View} from 'react-native';
 import {getDatabase, ref, onValue} from "firebase/database";
 import {StackScreenProps} from "@react-navigation/stack";
 
@@ -37,11 +37,11 @@ const UserSpace: React.FC<StackScreenProps<any>> = ({navigation}) => {
     };
 
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission!</Text>;
+        alert("Requesting camera permission!");
     }
 
     if (hasPermission === false) {
-        return <Text>No access to camera!</Text>;
+        alert("No access to camera!");
     }
 
     return (

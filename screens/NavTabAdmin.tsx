@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useEffect} from "react";
 import {getDatabase, ref, onValue, update} from "firebase/database";
 import {ButtonGroup} from "react-native-elements";
+import {Ionicons} from '@expo/vector-icons';
 
 function AdminHomeScreen() {
     const [userValue, setUserValue] = React.useState("")
@@ -16,13 +17,13 @@ function AdminHomeScreen() {
             const data1 = snapshot.val();
             setUserValue(data1);
         });
-    }, []);
+    }, [ref1]);
 
     return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>Welcome, admin-cluj-01!</Text>
+        <View style={styles.container}>
+            <Text>Welcome, <Text style={styles.bold}>admin-cluj-01</Text>!</Text>
             <Text>{'\n'}</Text>
-            <Text>Users administrated: {userValue}</Text>
+            <Text>Users administrated: <Text style={styles.bold}>{userValue}</Text></Text>
         </View>
     );
 }
@@ -64,15 +65,15 @@ function AdminMonitorScreen() {
 
     return (
         <View style={styles.container}>
-            <Text>Monitor Sensor data!</Text>
+            <Text style={styles.bold}>Monitor Sensor data!</Text>
             <Text>{'\n'}</Text>
-            <Text>Temperature: {tempValue}°C</Text>
+            <Text>Temperature: <Text style={styles.bold}>{tempValue}°C</Text></Text>
             <Text>{'\n'}</Text>
-            <Text>Humidity: {humidValue}%</Text>
+            <Text>Humidity: <Text style={styles.bold}>{humidValue}%</Text></Text>
             <Text>{'\n'}</Text>
-            <Text>Distance: {distValue}cm</Text>
+            <Text>Distance: <Text style={styles.bold}>{distValue}cm</Text></Text>
             <Text>{'\n'}</Text>
-            <Text>Light Intensity: {lightValue}cd</Text>
+            <Text>Light Intensity: <Text style={styles.bold}>{lightValue}cd</Text></Text>
         </View>
     );
 }
@@ -103,29 +104,28 @@ function AdminControlScreen() {
     }
 
     const toggleSwitch = () => {
-        if (isReversed)
-            update(ref1, {isReversed: "false"}).then(() => true);
+        if (isReversed) update(ref1, {isReversed: "false"}).then(() => true);
         else update(ref1, {isReversed: "true"}).then(() => false);
 
         setIsReversed(previousState => !previousState);
     }
 
-    const button1 = <Button title="<" onPress={() => changeServo(-5)}/>;
-    const button2 = <Button title="*" onPress={() => setServo(130)}/>;
-    const button3 = <Button title=">" onPress={() => changeServo(5)}/>;
+    const button1 = <Button disabled={servoValue >= 130} title="<" onPress={() => changeServo(5)}/>;
+    const button2 = <Button title="⚬" onPress={() => setServo(115)}/>;
+    const button3 = <Button disabled={servoValue <= 100} title=">" onPress={() => changeServo(-5)}/>;
     const button4 = <Button disabled={gearboxValue <= 0} title="-" onPress={() => changeGearBoxMotors(-10)}/>;
-    const button5 = <Button title="⚬" onPress={() => setGearBoxMotors(0)}/>;
-    const button6 = <Button title="+" onPress={() => changeGearBoxMotors(10)}/>;
+    const button5 = <Button title="B" onPress={() => setGearBoxMotors(0)}/>;
+    const button6 = <Button disabled={gearboxValue >= 250} title="+" onPress={() => changeGearBoxMotors(10)}/>;
 
     return (
         <View style={styles.container}>
-            <Text>Control the Prototype car!</Text>
+            <Text style={styles.bold}>Control the Prototype car!</Text>
             <Text>{'\n'}</Text>
             <Text>Front Servo driven Wheels</Text>
             <ButtonGroup buttons={[button1, button2, button3]}/>
             <Text>Back Driving Wheels</Text>
             <ButtonGroup buttons={[button4, button5, button6]}/>
-            <Text>Reverse gear</Text>
+            <Text>Reverse gear <Text style={styles.bold}>(R)</Text></Text>
             <Switch
                 trackColor={{false: "#767577", true: "#81b0ff"}}
                 thumbColor={isReversed ? "#f5dd4b" : "#f4f3f4"}
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-    control: {
-        marginTop: 10
+    bold: {
+        fontWeight: "bold"
     },
 
     error: {
@@ -192,14 +192,32 @@ function MonitorStackScreen() {
     );
 }
 
-const Tab = createBottomTabNavigator();
+const AdminTab = createBottomTabNavigator();
 
 export default function NavTabAdmin() {
     return (
-        <Tab.Navigator screenOptions={{headerShown: false}}>
-            <Tab.Screen name="Home" component={HomeStackScreen}/>
-            <Tab.Screen name="Control" component={ControlStackScreen}/>
-            <Tab.Screen name="Monitor" component={MonitorStackScreen}/>
-        </Tab.Navigator>
+        <AdminTab.Navigator screenOptions={({route}) => ({
+            tabBarIcon: ({focused, color, size}) => {
+                let iconName;
+
+                if (route.name === 'Home') {
+                    iconName = focused ? 'ios-information-circle' : 'ios-information-circle-outline';
+                } else if (route.name === 'Control') {
+                    iconName = focused ? 'ios-car' : 'ios-car-outline';
+                } else if (route.name === 'Monitor') {
+                    iconName = focused ? 'ios-speedometer' : 'ios-speedometer-outline';
+                }
+
+                // You can return any component that you like here!
+                // @ts-ignore
+                return <Ionicons name={iconName} size={size} color={color}/>;
+            },
+            tabBarActiveTintColor: 'tomato',
+            tabBarInactiveTintColor: 'gray',
+        })}>
+            <AdminTab.Screen name="Home" options={{headerShown: false}} component={HomeStackScreen}/>
+            <AdminTab.Screen name="Control" options={{headerShown: false}} component={ControlStackScreen}/>
+            <AdminTab.Screen name="Monitor" options={{headerShown: false}} component={MonitorStackScreen}/>
+        </AdminTab.Navigator>
     );
 }
