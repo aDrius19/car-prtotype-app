@@ -33,25 +33,30 @@ const UserSpace: React.FC<StackScreenProps<any>> = ({navigation}) => {
             setScanned(true);
             alert("Car prototype available!");
             navigation.navigate("Test User Panel Space");
+        } else {
+            alert("This QR Code is invalid!");
+            setScanned(true);
         }
     };
 
-    if (hasPermission === null) {
-        alert("Requesting camera permission!");
-    }
+    useEffect(() => {
+        if (hasPermission === null) {
+            alert("Requesting camera permission!");
+        }
 
-    if (hasPermission === false) {
-        alert("No access to camera!");
-    }
+        if (hasPermission === false) {
+            alert("No access to camera!");
+        }
+    }, [])
 
     return (
-        <View style={styles.container}>
+        <><View style={styles.container}>
             <BarCodeScanner
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                style={StyleSheet.absoluteFillObject}
-            />
-            {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)}/>}
+                style={StyleSheet.absoluteFillObject}/>
         </View>
+            <View style={styles.button}></View>{scanned &&
+                <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)}/>}</>
     );
 }
 
@@ -61,6 +66,13 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
     },
+
+    button: {
+        right: 10,
+        left: 10,
+        position: "absolute",
+        bottom: 10,
+    }
 });
 
 export default UserSpace;
